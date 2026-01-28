@@ -1,0 +1,91 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "loading": "Cargando...",
+    "error": "Ha ocurrido un error",
+    "success": "Operación exitosa",
+    "confirm": "Confirmar",
+    "back": "Volver",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "noResults": "No se encontraron resultados"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "register": "Crear cuenta",
+    "logout": "Cerrar sesión",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "name": "Nombre completo",
+    "companyName": "Nombre de empresa",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "resetPassword": "Restablecer contraseña",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "invalidCredentials": "Correo o contraseña incorrectos"
+  },
+  "forms": {
+    "title": "Formularios",
+    "createForm": "Crear formulario",
+    "formName": "Nombre del formulario",
+    "description": "Descripción",
+    "endpoint": "Endpoint",
+    "submissions": "envíos",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "noForms": "Aún no tienes formularios",
+    "createFirst": "Crea tu primer formulario"
+  },
+  "submissions": {
+    "title": "Envíos",
+    "empty": "No hay envíos todavía",
+    "payload": "Datos",
+    "metadata": "Metadata",
+    "receivedAt": "Recibido"
+  },
+  "emails": {
+    "title": "Plantillas de email",
+    "ownerNotification": "Notificación al propietario",
+    "visitorAutoresponse": "Respuesta automática",
+    "subject": "Asunto",
+    "enabled": "Habilitado"
+  },
+  "webhooks": {
+    "title": "Webhooks",
+    "createWebhook": "Crear webhook",
+    "name": "Nombre",
+    "url": "URL"
+  },
+  "kommo": {
+    "title": "Integración Kommo",
+    "connect": "Conectar con Kommo",
+    "disconnect": "Desconectar",
+    "connected": "Conectado",
+    "notConnected": "No conectado"
+  },
+  "settings": {
+    "title": "Configuración",
+    "profile": "Perfil",
+    "updateProfile": "Actualizar perfil"
+  },
+  "validation": {
+    "required": "Este campo es requerido",
+    "email": "Ingresa un correo válido",
+    "minLength": "Mínimo {min} caracteres",
+    "url": "Ingresa una URL válida"
+  },
+  "admin": {
+    "title": "Administración",
+    "dashboard": "Dashboard",
+    "tenants": "Tenants",
+    "team": "Equipo",
+    "activity": "Actividad"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Operation successful",
+    "confirm": "Confirm",
+    "back": "Back",
+    "search": "Search",
+    "filter": "Filter",
+    "noResults": "No results found"
+  },
+  "auth": {
+    "login": "Log in",
+    "register": "Create account",
+    "logout": "Log out",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "name": "Full name",
+    "companyName": "Company name",
+    "forgotPassword": "Forgot your password?",
+    "resetPassword": "Reset password",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "invalidCredentials": "Invalid email or password"
+  },
+  "forms": {
+    "title": "Forms",
+    "createForm": "Create form",
+    "formName": "Form name",
+    "description": "Description",
+    "endpoint": "Endpoint",
+    "submissions": "submissions",
+    "active": "Active",
+    "inactive": "Inactive",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "noForms": "You don't have any forms yet",
+    "createFirst": "Create your first form"
+  },
+  "submissions": {
+    "title": "Submissions",
+    "empty": "No submissions yet",
+    "payload": "Data",
+    "metadata": "Metadata",
+    "receivedAt": "Received"
+  },
+  "emails": {
+    "title": "Email templates",
+    "ownerNotification": "Owner notification",
+    "visitorAutoresponse": "Auto-response",
+    "subject": "Subject",
+    "enabled": "Enabled"
+  },
+  "webhooks": {
+    "title": "Webhooks",
+    "createWebhook": "Create webhook",
+    "name": "Name",
+    "url": "URL"
+  },
+  "kommo": {
+    "title": "Kommo Integration",
+    "connect": "Connect with Kommo",
+    "disconnect": "Disconnect",
+    "connected": "Connected",
+    "notConnected": "Not connected"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "updateProfile": "Update profile"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Enter a valid email",
+    "minLength": "Minimum {min} characters",
+    "url": "Enter a valid URL"
+  },
+  "admin": {
+    "title": "Administration",
+    "dashboard": "Dashboard",
+    "tenants": "Tenants",
+    "team": "Team",
+    "activity": "Activity"
+  }
+}
