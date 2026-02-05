@@ -53,12 +53,12 @@ export const useAuthStore = create<AuthState>()(
 
       hydrate: () => {
         const token = getToken()
-        const currentState = get()
 
-        if (token && !currentState.token) {
-          set({ token, isLoading: true })
-        } else if (!token) {
-          set({ isLoading: false })
+        if (token) {
+          set({ token, isLoading: false })
+        } else {
+          // No token in localStorage — clear stale persisted state
+          set({ user: null, token: null, isAuthenticated: false, isLoading: false })
         }
       },
     }),

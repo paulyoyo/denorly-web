@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-import { clearToken, getToken } from '@/lib/utils/token'
+import { useAuthStore } from '@/lib/stores/auth-store'
+import { getToken } from '@/lib/utils/token'
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || '/api/v1',
@@ -37,11 +38,7 @@ api.interceptors.response.use(
 
       // Handle 401 Unauthorized
       if (status === 401) {
-        clearToken()
-        if (typeof window !== 'undefined') {
-          const locale = document.documentElement.lang || 'es'
-          window.location.href = `/${locale}/login`
-        }
+        useAuthStore.getState().logout()
       }
 
       // Handle 422 Validation errors
