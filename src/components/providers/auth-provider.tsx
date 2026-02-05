@@ -19,11 +19,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Listen for storage events (multi-tab sync)
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'denorly_token') {
-        if (!event.newValue && token) {
+      if (event.key === 'denorly-auth') {
+        const parsed = event.newValue ? JSON.parse(event.newValue) : null
+        const newToken = parsed?.state?.token || null
+
+        if (!newToken && token) {
           // Token was removed in another tab
           useAuthStore.getState().logout()
-        } else if (event.newValue && !token) {
+        } else if (newToken && !token) {
           // Token was added in another tab
           hydrate()
         }

@@ -1,8 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import { clearToken, getToken, setToken } from '@/lib/utils/token'
-
 import type { User } from '@/types/api'
 
 interface AuthState {
@@ -31,33 +29,23 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: !!user,
         }),
 
-      setToken: (token) => {
-        if (token) {
-          setToken(token)
-        } else {
-          clearToken()
-        }
-        set({ token })
-      },
+      setToken: (token) => set({ token }),
 
       setLoading: (isLoading) => set({ isLoading }),
 
-      logout: () => {
-        clearToken()
+      logout: () =>
         set({
           user: null,
           token: null,
           isAuthenticated: false,
-        })
-      },
+        }),
 
       hydrate: () => {
-        const token = getToken()
+        const { token, user } = get()
 
         if (token) {
-          set({ token, isLoading: false })
+          set({ isAuthenticated: !!user, isLoading: false })
         } else {
-          // No token in localStorage — clear stale persisted state
           set({ user: null, token: null, isAuthenticated: false, isLoading: false })
         }
       },
