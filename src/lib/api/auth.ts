@@ -19,7 +19,15 @@ export async function login(
 export async function register(
   registerData: RegisterData
 ): Promise<RegisterResponse> {
-  const { data } = await api.post<RegisterResponse>('/auth/register', registerData)
+  const { data } = await api.post<RegisterResponse>('/auth/register', {
+    user: {
+      name: registerData.name,
+      email: registerData.email,
+      password: registerData.password,
+      password_confirmation: registerData.passwordConfirmation,
+      company_name: registerData.companyName,
+    },
+  })
   return data
 }
 

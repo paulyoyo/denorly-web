@@ -154,6 +154,7 @@ export interface RegisterData {
   name: string
   email: string
   password: string
+  passwordConfirmation: string
   companyName?: string
 }
 
