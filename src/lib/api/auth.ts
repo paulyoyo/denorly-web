@@ -20,7 +20,7 @@ export async function login(
   })
 
   const token =
-    response.headers.authorization?.replace('Bearer ', '') ?? ''
+    response.data.token ?? response.headers.authorization?.replace('Bearer ', '') ?? ''
   const user = response.data.user ?? response.data
 
   return { user, token }
