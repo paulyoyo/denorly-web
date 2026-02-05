@@ -16,6 +16,7 @@ export function useAuth() {
     setUser,
     setToken,
     setLoading,
+    loginSuccess,
     logout: storeLogout,
   } = useAuthStore()
 
@@ -24,19 +25,17 @@ export function useAuth() {
       try {
         setLoading(true)
         const response = await authApi.login({ email, password })
-        setToken(response.token)
-        setUser(response.user)
+        loginSuccess(response.user, response.token)
         return response
       } catch (error) {
+        setLoading(false)
         const message =
           error instanceof Error ? error.message : 'Error al iniciar sesión'
         toast.error(message)
         throw error
-      } finally {
-        setLoading(false)
       }
     },
-    [setLoading, setToken, setUser]
+    [setLoading, loginSuccess]
   )
 
   const register = useCallback(

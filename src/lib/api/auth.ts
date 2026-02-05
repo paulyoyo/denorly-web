@@ -20,8 +20,12 @@ export async function login(
   })
 
   const token =
-    response.data.token ?? response.headers.authorization?.replace('Bearer ', '') ?? ''
+    response.data.token ?? response.headers.authorization?.replace('Bearer ', '')
   const user = response.data.user ?? response.data
+
+  if (!token) {
+    throw new Error('No se recibió token de autenticación')
+  }
 
   return { user, token }
 }
