@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 
+import { setAuthToken } from '@/lib/api/client'
 import { useAuthStore } from '@/lib/stores/auth-store'
 
 interface AuthProviderProps {
@@ -11,9 +12,13 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const { hydrate, token, setLoading } = useAuthStore()
 
-  // Hydrate auth state on mount
+  // Hydrate auth state and sync axios default header on mount
   useEffect(() => {
     hydrate()
+    const currentToken = useAuthStore.getState().token
+    if (currentToken) {
+      setAuthToken(currentToken)
+    }
   }, [hydrate])
 
   // Listen for storage events (multi-tab sync)

@@ -4,6 +4,7 @@ import { useCallback } from 'react'
 import toast from 'react-hot-toast'
 
 import * as authApi from '@/lib/api/auth'
+import { setAuthToken } from '@/lib/api/client'
 import { useAuthStore } from '@/lib/stores/auth-store'
 
 import type { RegisterData } from '@/types/api'
@@ -25,6 +26,7 @@ export function useAuth() {
       try {
         setLoading(true)
         const response = await authApi.login({ email, password })
+        setAuthToken(response.token)
         loginSuccess(response.user, response.token)
         return response
       } catch (error) {
@@ -62,6 +64,7 @@ export function useAuth() {
     } catch {
       // Ignore logout API errors
     } finally {
+      setAuthToken(null)
       storeLogout()
     }
   }, [storeLogout])
