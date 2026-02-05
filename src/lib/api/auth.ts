@@ -12,13 +12,21 @@ import type {
 export async function login(
   credentials: LoginCredentials
 ): Promise<LoginResponse> {
-  const { data } = await api.post<LoginResponse>('/auth/login', {
+  const response = await api.post<LoginResponse>('/auth/login', {
     user: {
       email: credentials.email,
       password: credentials.password,
     },
   })
-  return data
+
+  // devise-jwt returns the token in the Authorization header
+  const authHeader = response.headers['authorization'] || response.headers['Authorization']
+  const token = response.data.token || (authHeader ? authHeader.replace('Bearer ', '') : null)
+
+  return {
+    user: response.data.user,
+    token,
+  }
 }
 
 export async function register(
