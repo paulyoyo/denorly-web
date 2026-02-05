@@ -12,13 +12,18 @@ import type {
 export async function login(
   credentials: LoginCredentials
 ): Promise<LoginResponse> {
-  const { data } = await api.post<LoginResponse>('/auth/login', {
+  const response = await api.post('/auth/login', {
     user: {
       email: credentials.email,
       password: credentials.password,
     },
   })
-  return data
+
+  const token =
+    response.headers.authorization?.replace('Bearer ', '') ?? ''
+  const user = response.data.user ?? response.data
+
+  return { user, token }
 }
 
 export async function register(
