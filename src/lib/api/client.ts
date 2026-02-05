@@ -1,7 +1,5 @@
 import axios from 'axios'
 
-import { useAuthStore } from '@/lib/stores/auth-store'
-
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || '/api/v1',
   headers: {
@@ -9,6 +7,18 @@ export const api = axios.create({
     'Accept': 'application/json',
   },
 })
+
+function getTokenFromStorage(): string | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem('denorly-auth')
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    return parsed?.state?.token || null
+  } catch {
+    return null
+  }
+}
 
 export function setAuthToken(token: string | null) {
   if (token) {
@@ -21,13 +31,14 @@ export function setAuthToken(token: string | null) {
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
-    // Fallback: if default header not set, try reading from store
+    // Read token from axios defaults first, then from localStorage directly
     if (!config.headers.Authorization) {
-      const token = useAuthStore.getState().token
+      const token = getTokenFromStorage()
       if (token) {
         config.headers.Authorization = `Bearer ${token}`
       }
     }
+    console.log('[API]', config.method?.toUpperCase(), config.url, '| Auth:', config.headers.Authorization ? 'YES' : 'NO')
 
     // Add Accept-Language header based on current locale
     if (typeof window !== 'undefined') {
@@ -52,7 +63,10 @@ api.interceptors.response.use(
         const url = error.config?.url || ''
         if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
           setAuthToken(null)
-          useAuthStore.getState().logout()
+          // Lazy import to avoid circular dependency
+          import('@/lib/stores/auth-store').then(({ useAuthStore }) => {
+            useAuthStore.getState().logout()
+          })
         }
       }
 
