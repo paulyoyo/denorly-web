@@ -12,21 +12,13 @@ import type {
 export async function login(
   credentials: LoginCredentials
 ): Promise<LoginResponse> {
-  const response = await api.post<LoginResponse>('/auth/login', {
+  const { data } = await api.post<LoginResponse>('/auth/login', {
     user: {
       email: credentials.email,
       password: credentials.password,
     },
   })
-
-  // devise-jwt returns the token in the Authorization header
-  const authHeader = response.headers['authorization'] || response.headers['Authorization']
-  const token = response.data.token || (authHeader ? authHeader.replace('Bearer ', '') : null)
-
-  return {
-    user: response.data.user,
-    token,
-  }
+  return data
 }
 
 export async function register(
@@ -45,7 +37,7 @@ export async function register(
 }
 
 export async function logout(): Promise<void> {
-  await api.post('/auth/logout')
+  await api.delete('/auth/logout')
 }
 
 export async function forgotPassword(email: string): Promise<void> {
@@ -64,14 +56,14 @@ export async function resetPassword(
 }
 
 export async function getMe(): Promise<User> {
-  const { data } = await api.get<User>('/auth/me')
+  const { data } = await api.get<User>('/me')
   return data
 }
 
 export async function updateMe(
   updateData: Partial<Pick<User, 'name' | 'companyName'>>
 ): Promise<User> {
-  const { data } = await api.patch<User>('/auth/me', {
+  const { data } = await api.patch<User>('/me', {
     user: {
       name: updateData.name,
       company_name: updateData.companyName,

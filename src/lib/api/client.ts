@@ -7,6 +7,7 @@ export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || '/api/v1',
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
 })
 
@@ -36,9 +37,12 @@ api.interceptors.response.use(
     if (error.response) {
       const { status } = error.response
 
-      // Handle 401 Unauthorized
+      // Handle 401 Unauthorized (skip for login/register endpoints)
       if (status === 401) {
-        useAuthStore.getState().logout()
+        const url = error.config?.url || ''
+        if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
+          useAuthStore.getState().logout()
+        }
       }
 
       // Handle 422 Validation errors
