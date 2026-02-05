@@ -61,7 +61,9 @@
     "title": "Webhooks",
     "createWebhook": "Create webhook",
     "name": "Name",
-    "url": "URL"
+    "url": "URL",
+    "method": "HTTP Method",
+    "urlPlaceholder": "https://example.com/webhook"
   },
   "kommo": {
     "title": "Kommo Integration",
