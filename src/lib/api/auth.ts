@@ -12,7 +12,12 @@ import type {
 export async function login(
   credentials: LoginCredentials
 ): Promise<LoginResponse> {
-  const { data } = await api.post<LoginResponse>('/auth/login', credentials)
+  const { data } = await api.post<LoginResponse>('/auth/login', {
+    user: {
+      email: credentials.email,
+      password: credentials.password,
+    },
+  })
   return data
 }
 
@@ -36,13 +41,18 @@ export async function logout(): Promise<void> {
 }
 
 export async function forgotPassword(email: string): Promise<void> {
-  await api.post('/auth/forgot-password', { email })
+  await api.post('/auth/forgot-password', { user: { email } })
 }
 
 export async function resetPassword(
   resetData: ResetPasswordData
 ): Promise<void> {
-  await api.post('/auth/reset-password', resetData)
+  await api.post('/auth/reset-password', {
+    user: {
+      token: resetData.token,
+      password: resetData.password,
+    },
+  })
 }
 
 export async function getMe(): Promise<User> {
@@ -53,6 +63,11 @@ export async function getMe(): Promise<User> {
 export async function updateMe(
   updateData: Partial<Pick<User, 'name' | 'companyName'>>
 ): Promise<User> {
-  const { data } = await api.patch<User>('/auth/me', updateData)
+  const { data } = await api.patch<User>('/auth/me', {
+    user: {
+      name: updateData.name,
+      company_name: updateData.companyName,
+    },
+  })
   return data
 }
