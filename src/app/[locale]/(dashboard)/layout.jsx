@@ -1,13 +1,31 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { PageSpinner } from '@/components/ui/spinner'
-import { useRequireAuth } from '@/lib/hooks/use-require-auth'
+import { useAuthStore } from '@/lib/stores/auth-store'
+import { useRouter } from '@/navigation'
 
 export default function DashboardRouteLayout({ children }) {
-  const { isLoading, isAuthenticated } = useRequireAuth('/login')
+  const [isReady, setIsReady] = useState(false)
+  const { isAuthenticated, hydrate } = useAuthStore()
+  const router = useRouter()
 
-  if (isLoading || !isAuthenticated) {
+  // Hydrate on mount
+  useEffect(() => {
+    hydrate()
+    setIsReady(true)
+  }, [hydrate])
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (isReady && !isAuthenticated) {
+      router.replace('/login')
+    }
+  }, [isReady, isAuthenticated, router])
+
+  if (!isReady || !isAuthenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <PageSpinner />

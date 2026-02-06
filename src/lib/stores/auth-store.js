@@ -1,70 +1,89 @@
-import { useEffect, useState } from 'react'
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 
-export const useAuthStore = create()(
-  persist(
-    (set) => ({
-      user: null,
-      token: null,
-      isAuthenticated: false,
+const STORAGE_KEY = 'denorly-auth'
 
-      setUser: (user) =>
-        set({
-          user,
-          isAuthenticated: !!user,
-        }),
+// Read initial state from localStorage (client-side only)
+function getInitialState() {
+  if (typeof window === 'undefined') {
+    return { user: null, token: null, isAuthenticated: false }
+  }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return { user: null, token: null, isAuthenticated: false }
+    const parsed = JSON.parse(raw)
+    return {
+      user: parsed.user || null,
+      token: parsed.token || null,
+      isAuthenticated: !!parsed.token,
+    }
+  } catch {
+    return { user: null, token: null, isAuthenticated: false }
+  }
+}
 
-      setToken: (token) => set({ token }),
-
-      loginSuccess: (user, token) => {
-        // Immediately write to localStorage to avoid race condition
-        const state = { user, token, isAuthenticated: true }
-        localStorage.setItem(
-          'denorly-auth',
-          JSON.stringify({ state, version: 0 })
-        )
-        set(state)
-      },
-
-      logout: () => {
-        // Immediately clear localStorage
-        localStorage.removeItem('denorly-auth')
-        set({
-          user: null,
-          token: null,
-          isAuthenticated: false,
-        })
-      },
-    }),
-    {
-      name: 'denorly-auth',
-      partialize: (state) => ({
+// Save state to localStorage
+function saveToStorage(state) {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
         user: state.user,
         token: state.token,
-        isAuthenticated: state.isAuthenticated,
-      }),
-    }
-  )
-)
+      })
+    )
+  } catch {
+    // Ignore storage errors
+  }
+}
 
-// Hook to check if store has hydrated - uses persist API
-export const useHasHydrated = () => {
-  const [hasHydrated, setHasHydrated] = useState(false)
+// Clear localStorage
+function clearStorage() {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch {
+    // Ignore storage errors
+  }
+}
 
-  useEffect(() => {
-    // Check if already hydrated
-    if (useAuthStore.persist.hasHydrated()) {
-      setHasHydrated(true)
-      return
-    }
+const initialState = getInitialState()
 
-    // Subscribe to hydration finish
-    const unsub = useAuthStore.persist.onFinishHydration(() => {
-      setHasHydrated(true)
-    })
-    return unsub
-  }, [])
+export const useAuthStore = create((set) => ({
+  user: initialState.user,
+  token: initialState.token,
+  isAuthenticated: initialState.isAuthenticated,
+  isHydrated: typeof window !== 'undefined', // true on client, false on server
 
-  return hasHydrated
+  setUser: (user) =>
+    set((state) => {
+      const newState = { ...state, user, isAuthenticated: !!user }
+      saveToStorage(newState)
+      return newState
+    }),
+
+  loginSuccess: (user, token) =>
+    set(() => {
+      const newState = { user, token, isAuthenticated: true }
+      saveToStorage(newState)
+      return newState
+    }),
+
+  logout: () =>
+    set(() => {
+      clearStorage()
+      return { user: null, token: null, isAuthenticated: false }
+    }),
+
+  // Call this on client mount to ensure hydration
+  hydrate: () =>
+    set(() => {
+      const state = getInitialState()
+      return { ...state, isHydrated: true }
+    }),
+}))
+
+// Simple hook for components
+export function useIsHydrated() {
+  return useAuthStore((state) => state.isHydrated)
 }

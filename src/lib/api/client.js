@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+const STORAGE_KEY = 'denorly-auth'
+
 // --- snake_case ↔ camelCase conversion utilities ---
 
 function camelizeStr(str) {
@@ -48,10 +50,10 @@ export const api = axios.create({
 function getTokenFromStorage() {
   if (typeof window === 'undefined') return null
   try {
-    const raw = localStorage.getItem('denorly-auth')
+    const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
     const parsed = JSON.parse(raw)
-    return parsed?.state?.token || null
+    return parsed?.token || null
   } catch {
     return null
   }
@@ -110,18 +112,6 @@ api.interceptors.response.use(
 
     if (error.response) {
       const { status } = error.response
-
-      // Handle 401 Unauthorized (skip for login/register endpoints)
-      if (status === 401) {
-        const url = error.config?.url || ''
-        if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
-          setAuthToken(null)
-          // Lazy import to avoid circular dependency
-          import('@/lib/stores/auth-store').then(({ useAuthStore }) => {
-            useAuthStore.getState().logout()
-          })
-        }
-      }
 
       // Handle 422 Validation errors
       if (status === 422) {

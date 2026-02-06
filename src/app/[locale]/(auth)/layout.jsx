@@ -1,24 +1,31 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { AuthLayout } from '@/components/layout/auth-layout'
 import { PageSpinner } from '@/components/ui/spinner'
-import { useAuthStore, useHasHydrated } from '@/lib/stores/auth-store'
+import { useAuthStore } from '@/lib/stores/auth-store'
 import { useRouter } from '@/navigation'
 
 export default function AuthRouteLayout({ children }) {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-  const hasHydrated = useHasHydrated()
+  const [isReady, setIsReady] = useState(false)
+  const { isAuthenticated, hydrate } = useAuthStore()
   const router = useRouter()
 
+  // Hydrate on mount
   useEffect(() => {
-    if (hasHydrated && isAuthenticated) {
+    hydrate()
+    setIsReady(true)
+  }, [hydrate])
+
+  // Redirect if authenticated
+  useEffect(() => {
+    if (isReady && isAuthenticated) {
       router.replace('/forms')
     }
-  }, [hasHydrated, isAuthenticated, router])
+  }, [isReady, isAuthenticated, router])
 
-  if (!hasHydrated) {
+  if (!isReady) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <PageSpinner />
@@ -27,7 +34,11 @@ export default function AuthRouteLayout({ children }) {
   }
 
   if (isAuthenticated) {
-    return null
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <PageSpinner />
+      </div>
+    )
   }
 
   return <AuthLayout>{children}</AuthLayout>

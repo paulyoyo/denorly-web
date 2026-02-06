@@ -84,10 +84,10 @@ export function useAuth() {
       setUser(currentUser)
       return currentUser
     } catch {
-      storeLogout()
+      // Don't logout on error - let the caller handle it
       return null
     }
-  }, [setUser, storeLogout])
+  }, [setUser])
 
   return {
     user,
