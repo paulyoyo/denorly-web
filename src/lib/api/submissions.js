@@ -2,7 +2,10 @@ import { api } from './client'
 
 export async function getSubmissions(formId, params) {
   const { data } = await api.get(`/forms/${formId}/submissions`, { params })
-  return data
+  return {
+    data: data.submissions ?? data.data ?? [],
+    meta: data.meta,
+  }
 }
 
 export async function getSubmission(formId, id) {
