@@ -76,12 +76,10 @@ api.interceptors.request.use(
       config.params = decamelizeKeys(config.params)
     }
 
-    // Read token from axios defaults first, then from localStorage directly
-    if (!config.headers.Authorization) {
-      const token = getTokenFromStorage()
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`
-      }
+    // Always read token fresh from localStorage
+    const token = getTokenFromStorage()
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
     }
 
     // Add Accept-Language header based on current locale
