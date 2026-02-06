@@ -4,20 +4,21 @@ import { useEffect } from 'react'
 
 import { AuthLayout } from '@/components/layout/auth-layout'
 import { PageSpinner } from '@/components/ui/spinner'
-import { useAuthStore } from '@/lib/stores/auth-store'
+import { useAuthStore, useHasHydrated } from '@/lib/stores/auth-store'
 import { useRouter } from '@/navigation'
 
 export default function AuthRouteLayout({ children }) {
-  const { isAuthenticated, isLoading } = useAuthStore()
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const hasHydrated = useHasHydrated()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
+    if (hasHydrated && isAuthenticated) {
       router.replace('/forms')
     }
-  }, [isLoading, isAuthenticated, router])
+  }, [hasHydrated, isAuthenticated, router])
 
-  if (isLoading) {
+  if (!hasHydrated) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <PageSpinner />

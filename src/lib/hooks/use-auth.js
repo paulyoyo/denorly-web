@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import * as authApi from '@/lib/api/auth'
@@ -8,61 +8,44 @@ import { setAuthToken } from '@/lib/api/client'
 import { useAuthStore } from '@/lib/stores/auth-store'
 
 export function useAuth() {
-  const {
-    user,
-    isAuthenticated,
-    isLoading,
-    setUser,
-    setToken,
-    setLoading,
-    loginSuccess,
-    logout: storeLogout,
-  } = useAuthStore()
+  const { user, isAuthenticated, setUser, loginSuccess, logout: storeLogout } =
+    useAuthStore()
+  const [isLoading, setIsLoading] = useState(false)
 
   const login = useCallback(
     async (email, password) => {
       try {
-        setLoading(true)
+        setIsLoading(true)
         const response = await authApi.login({ email, password })
-        console.log(
-          '[AUTH] Login response token:',
-          response.token ? `${response.token.substring(0, 20)}...` : 'NULL'
-        )
         setAuthToken(response.token)
         loginSuccess(response.user, response.token)
-        console.log(
-          '[AUTH] Token set. localStorage:',
-          localStorage.getItem('denorly-auth')?.substring(0, 80)
-        )
         return response
       } catch (error) {
-        setLoading(false)
         const message =
           error instanceof Error ? error.message : 'Error al iniciar sesión'
         toast.error(message)
         throw error
+      } finally {
+        setIsLoading(false)
       }
     },
-    [setLoading, loginSuccess]
+    [loginSuccess]
   )
 
-  const register = useCallback(
-    async (data) => {
-      try {
-        setLoading(true)
-        const response = await authApi.register(data)
-        return response
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'Error al crear cuenta'
-        toast.error(message)
-        throw error
-      } finally {
-        setLoading(false)
-      }
-    },
-    [setLoading]
-  )
+  const register = useCallback(async (data) => {
+    try {
+      setIsLoading(true)
+      const response = await authApi.register(data)
+      return response
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Error al crear cuenta'
+      toast.error(message)
+      throw error
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
   const logout = useCallback(async () => {
     try {
@@ -78,7 +61,7 @@ export function useAuth() {
   const updateProfile = useCallback(
     async (data) => {
       try {
-        setLoading(true)
+        setIsLoading(true)
         const updatedUser = await authApi.updateMe(data)
         setUser(updatedUser)
         toast.success('Perfil actualizado')
@@ -89,25 +72,22 @@ export function useAuth() {
         toast.error(message)
         throw error
       } finally {
-        setLoading(false)
+        setIsLoading(false)
       }
     },
-    [setLoading, setUser]
+    [setUser]
   )
 
   const fetchUser = useCallback(async () => {
     try {
-      setLoading(true)
       const currentUser = await authApi.getMe()
       setUser(currentUser)
       return currentUser
     } catch {
       storeLogout()
       return null
-    } finally {
-      setLoading(false)
     }
-  }, [setLoading, setUser, storeLogout])
+  }, [setUser, storeLogout])
 
   return {
     user,

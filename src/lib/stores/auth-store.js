@@ -6,8 +6,8 @@ export const useAuthStore = create()(
     (set) => ({
       user: null,
       token: null,
-      isLoading: true,
       isAuthenticated: false,
+      _hasHydrated: false,
 
       setUser: (user) =>
         set({
@@ -17,14 +17,11 @@ export const useAuthStore = create()(
 
       setToken: (token) => set({ token }),
 
-      setLoading: (isLoading) => set({ isLoading }),
-
       loginSuccess: (user, token) =>
         set({
           user,
           token,
           isAuthenticated: true,
-          isLoading: false,
         }),
 
       logout: () =>
@@ -33,6 +30,8 @@ export const useAuthStore = create()(
           token: null,
           isAuthenticated: false,
         }),
+
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),
     {
       name: 'denorly-auth',
@@ -42,9 +41,14 @@ export const useAuthStore = create()(
         isAuthenticated: state.isAuthenticated,
       }),
       onRehydrateStorage: () => () => {
-        // Set isLoading to false after hydration completes
-        useAuthStore.setState({ isLoading: false })
+        useAuthStore.getState().setHasHydrated(true)
       },
     }
   )
 )
+
+// Hook to check if store has hydrated
+export const useHasHydrated = () => {
+  const hasHydrated = useAuthStore((state) => state._hasHydrated)
+  return hasHydrated
+}

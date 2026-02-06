@@ -4,28 +4,29 @@ import { useEffect } from 'react'
 
 import { useAuth } from './use-auth'
 
+import { useHasHydrated } from '@/lib/stores/auth-store'
 import { useRouter } from '@/navigation'
 
-
 export function useRequireAuth(redirectTo = '/login') {
-  const { user, isAuthenticated, isLoading, fetchUser } = useAuth()
+  const { user, isAuthenticated, fetchUser } = useAuth()
+  const hasHydrated = useHasHydrated()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (hasHydrated && !isAuthenticated) {
       router.replace(redirectTo)
     }
-  }, [isLoading, isAuthenticated, router, redirectTo])
+  }, [hasHydrated, isAuthenticated, router, redirectTo])
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated && !user) {
+    if (hasHydrated && isAuthenticated && !user) {
       fetchUser()
     }
-  }, [isLoading, isAuthenticated, user, fetchUser])
+  }, [hasHydrated, isAuthenticated, user, fetchUser])
 
   return {
     user,
-    isLoading,
+    isLoading: !hasHydrated,
     isAuthenticated,
   }
 }
