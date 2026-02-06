@@ -14,6 +14,11 @@ export async function connectKommo(credentials) {
   return data
 }
 
+export async function getKommoAuthUrl() {
+  const { data } = await api.get('/kommo/auth_url')
+  return data.authUrl ?? data.auth_url
+}
+
 export async function updateKommoIntegration(updateData) {
   const { data } = await api.patch('/kommo/integration', updateData)
   return data

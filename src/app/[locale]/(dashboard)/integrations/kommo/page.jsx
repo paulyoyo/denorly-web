@@ -22,8 +22,9 @@ import {
 } from '@/lib/hooks/use-kommo'
 
 const kommoSchema = z.object({
-  subdomain: z.string().min(1, 'Requerido'),
-  accessToken: z.string().min(1, 'Requerido'),
+  clientId: z.string().min(1, 'Requerido'),
+  clientSecret: z.string().min(1, 'Requerido'),
+  redirectUri: z.string().url('Debe ser una URL válida'),
 })
 
 export default function KommoPage() {
@@ -41,8 +42,9 @@ export default function KommoPage() {
   } = useForm({
     resolver: zodResolver(kommoSchema),
     defaultValues: {
-      subdomain: '',
-      accessToken: '',
+      clientId: '',
+      clientSecret: '',
+      redirectUri: '',
     },
   })
 
@@ -96,20 +98,20 @@ export default function KommoPage() {
                 </h2>
 
                 <div className="mb-6 rounded-lg bg-blue-50 p-4 text-sm text-blue-800">
-                  <p className="mb-2 font-medium">¿Cómo obtener tus credenciales?</p>
+                  <p className="mb-2 font-medium">¿Cómo obtener tus credenciales OAuth?</p>
                   <ol className="ml-4 list-decimal space-y-1 text-blue-700">
                     <li>Ve a tu cuenta de Kommo</li>
                     <li>Configuración → Integraciones</li>
-                    <li>Crea una nueva integración privada</li>
-                    <li>Copia el subdominio y el token de acceso</li>
+                    <li>Crea una nueva integración OAuth</li>
+                    <li>Copia el Client ID, Client Secret y configura el Redirect URI</li>
                   </ol>
                   <a
-                    href="https://www.kommo.com/support/integrations/private-integrations/"
+                    href="https://www.kommo.com/support/integrations/oauth/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-3 inline-flex items-center gap-1 font-medium text-blue-600 hover:text-blue-800"
                   >
-                    Ver documentación
+                    Ver documentación OAuth
                     <ExternalLink className="h-3.5 w-3.5" />
                   </a>
                 </div>
@@ -117,28 +119,38 @@ export default function KommoPage() {
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                   <div>
                     <Input
-                      {...register('subdomain')}
-                      label="Subdominio de Kommo"
-                      placeholder="tu-empresa"
-                      error={errors.subdomain?.message}
+                      {...register('clientId')}
+                      label="Client ID"
+                      placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                      error={errors.clientId?.message}
                     />
                     <p className="mt-1 text-xs text-gray-500">
-                      El subdominio de tu cuenta (ej: si tu URL es{' '}
-                      <strong>tu-empresa.kommo.com</strong>, ingresa{' '}
-                      <strong>tu-empresa</strong>)
+                      El ID de cliente de tu integración de Kommo
                     </p>
                   </div>
 
                   <div>
                     <Input
-                      {...register('accessToken')}
+                      {...register('clientSecret')}
                       type="password"
-                      label="Token de acceso"
-                      placeholder="Tu token de acceso de larga duración"
-                      error={errors.accessToken?.message}
+                      label="Client Secret"
+                      placeholder="Tu client secret"
+                      error={errors.clientSecret?.message}
                     />
                     <p className="mt-1 text-xs text-gray-500">
-                      El token de acceso de larga duración de tu integración privada
+                      El secreto de cliente de tu integración
+                    </p>
+                  </div>
+
+                  <div>
+                    <Input
+                      {...register('redirectUri')}
+                      label="Redirect URI"
+                      placeholder="https://tu-dominio.com/kommo/callback"
+                      error={errors.redirectUri?.message}
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      La URL de redirección configurada en tu integración de Kommo
                     </p>
                   </div>
 
@@ -193,7 +205,10 @@ export default function KommoPage() {
               <Badge variant="success">{t('connected')}</Badge>
             </div>
             <div className="mt-3 space-y-2 text-sm text-gray-600">
-              <p>Subdominio: {integration.subdomain}</p>
+              {integration.subdomain && <p>Subdominio: {integration.subdomain}</p>}
+              {integration.clientId && (
+                <p>Client ID: {integration.clientId.slice(0, 8)}...</p>
+              )}
               {integration.lastSyncAt && (
                 <p>Última sincronización: {integration.lastSyncAt}</p>
               )}
