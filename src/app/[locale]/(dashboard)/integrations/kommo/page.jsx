@@ -55,8 +55,9 @@ export default function KommoPage() {
 
   if (isLoading) return <PageSpinner />
 
-  // Not connected state
-  if (!integration || !integration.connected) {
+  // Not connected state - show form if no credentials configured
+  const isConfigured = integration?.connected || integration?.credentialsConfigured
+  if (!integration || !isConfigured) {
     return (
       <div>
         <PageHeader title={t('title')} />
@@ -202,15 +203,20 @@ export default function KommoPage() {
           <CardBody>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Estado</span>
-              <Badge variant="success">{t('connected')}</Badge>
+              <Badge variant={integration.connected ? 'success' : 'warning'}>
+                {integration.connected ? t('connected') : 'Credenciales configuradas'}
+              </Badge>
             </div>
             <div className="mt-3 space-y-2 text-sm text-gray-600">
-              {integration.subdomain && <p>Subdominio: {integration.subdomain}</p>}
               {integration.clientId && (
                 <p>Client ID: {integration.clientId.slice(0, 8)}...</p>
               )}
-              {integration.lastSyncAt && (
-                <p>Última sincronización: {integration.lastSyncAt}</p>
+              {integration.redirectUri && (
+                <p>Redirect URI: {integration.redirectUri}</p>
+              )}
+              {integration.subdomain && <p>Subdominio: {integration.subdomain}</p>}
+              {integration.lastSyncedAt && (
+                <p>Última sincronización: {integration.lastSyncedAt}</p>
               )}
             </div>
           </CardBody>
