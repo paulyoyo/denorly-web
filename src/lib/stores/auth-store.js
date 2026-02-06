@@ -44,11 +44,16 @@ export const useAuthStore = create()(
 
 // Hook to check if store has hydrated - uses persist API
 export const useHasHydrated = () => {
-  const [hasHydrated, setHasHydrated] = useState(
-    useAuthStore.persist.hasHydrated()
-  )
+  const [hasHydrated, setHasHydrated] = useState(false)
 
   useEffect(() => {
+    // Check if already hydrated
+    if (useAuthStore.persist.hasHydrated()) {
+      setHasHydrated(true)
+      return
+    }
+
+    // Subscribe to hydration finish
     const unsub = useAuthStore.persist.onFinishHydration(() => {
       setHasHydrated(true)
     })
