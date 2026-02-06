@@ -21,6 +21,7 @@ import {
   useConnectKommo,
   useDisconnectKommo,
   useKommoIntegration,
+  useStartKommoOAuth,
   useUpdateKommoIntegration,
 } from '@/lib/hooks/use-kommo'
 
@@ -36,6 +37,7 @@ export default function KommoPage() {
   const connectKommo = useConnectKommo()
   const updateIntegration = useUpdateKommoIntegration()
   const disconnectKommo = useDisconnectKommo()
+  const startOAuth = useStartKommoOAuth()
   const [showForm, setShowForm] = useState(false)
 
   // Fetch all unique fields from form submissions
@@ -250,6 +252,22 @@ export default function KommoPage() {
                 <p>Última sincronización: {integration.lastSyncedAt}</p>
               )}
             </div>
+
+            {/* Show Authorize button if credentials configured but OAuth not complete */}
+            {integration.credentialsConfigured && !integration.connected && (
+              <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                <p className="mb-3 text-sm text-amber-800">
+                  Tus credenciales están guardadas. Ahora debes autorizar la conexión con Kommo.
+                </p>
+                <Button
+                  onClick={() => startOAuth.mutate()}
+                  isLoading={startOAuth.isPending}
+                >
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  Autorizar en Kommo
+                </Button>
+              </div>
+            )}
           </CardBody>
         </Card>
 

@@ -57,3 +57,16 @@ export function useDisconnectKommo() {
     },
   })
 }
+
+export function useStartKommoOAuth() {
+  return useMutation({
+    mutationFn: async () => {
+      const authUrl = await kommoApi.getKommoAuthUrl()
+      window.location.href = authUrl
+    },
+    onError: (error) => {
+      const message = error.response?.data?.error || 'Error al iniciar autorización'
+      toast.error(message)
+    },
+  })
+}
