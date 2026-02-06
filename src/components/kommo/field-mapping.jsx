@@ -58,6 +58,7 @@ export function FieldMapping({
           field_name: selectedField.name,
           field_type: selectedField.type,
           field_code: selectedField.code,
+          entity_type: selectedField.entity_type, // 'leads' or 'contacts'
         }
       : { field_id: 0, field_name: '' }
     setRows(rows.map((row) => (row.id === id ? { ...row, value: newValue } : row)))

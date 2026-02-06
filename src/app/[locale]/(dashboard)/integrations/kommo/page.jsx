@@ -285,8 +285,8 @@ export default function KommoPage() {
               isLoading={updateIntegration.isPending}
               availableFields={availableFields}
               kommoFields={[
-                ...(integration.leadFields || []),
-                ...(integration.contactFields || []),
+                ...(integration.leadFields || []).map((f) => ({ ...f, entity_type: 'leads' })),
+                ...(integration.contactFields || []).map((f) => ({ ...f, entity_type: 'contacts' })),
               ]}
             />
           </CardBody>
