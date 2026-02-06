@@ -17,19 +17,25 @@ export const useAuthStore = create()(
 
       setToken: (token) => set({ token }),
 
-      loginSuccess: (user, token) =>
-        set({
-          user,
-          token,
-          isAuthenticated: true,
-        }),
+      loginSuccess: (user, token) => {
+        // Immediately write to localStorage to avoid race condition
+        const state = { user, token, isAuthenticated: true }
+        localStorage.setItem(
+          'denorly-auth',
+          JSON.stringify({ state, version: 0 })
+        )
+        set(state)
+      },
 
-      logout: () =>
+      logout: () => {
+        // Immediately clear localStorage
+        localStorage.removeItem('denorly-auth')
         set({
           user: null,
           token: null,
           isAuthenticated: false,
-        }),
+        })
+      },
     }),
     {
       name: 'denorly-auth',
