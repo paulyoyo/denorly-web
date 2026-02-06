@@ -80,6 +80,7 @@ api.interceptors.request.use(
 
     // Always read token fresh from localStorage
     const token = getTokenFromStorage()
+    console.log('[API Request]', config.method?.toUpperCase(), config.url, '| Token:', token ? `${token.substring(0, 20)}...` : 'NULL')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }

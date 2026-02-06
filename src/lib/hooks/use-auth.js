@@ -17,8 +17,10 @@ export function useAuth() {
       try {
         setIsLoading(true)
         const response = await authApi.login({ email, password })
+        console.log('[AUTH] Login response:', { user: response.user?.email, token: response.token ? `${response.token.substring(0, 20)}...` : 'NULL' })
         setAuthToken(response.token)
         loginSuccess(response.user, response.token)
+        console.log('[AUTH] After loginSuccess, localStorage:', localStorage.getItem('denorly-auth')?.substring(0, 100))
         return response
       } catch (error) {
         const message =
