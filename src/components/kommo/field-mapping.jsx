@@ -18,7 +18,7 @@ export function FieldMapping({
     Object.entries(mapping || {}).map(([key, value], i) => ({
       id: i,
       key,
-      value: typeof value === 'object' ? value : { field_id: 0, field_name: value },
+      value: typeof value === 'object' ? value : { fieldId: 0, fieldName: value },
     }))
   )
   const [nextId, setNextId] = useState(Object.keys(mapping || {}).length)
@@ -35,14 +35,14 @@ export function FieldMapping({
     const newRows = Object.entries(mapping || {}).map(([key, value], i) => ({
       id: i,
       key,
-      value: typeof value === 'object' ? value : { field_id: 0, field_name: value },
+      value: typeof value === 'object' ? value : { fieldId: 0, fieldName: value },
     }))
     setRows(newRows)
     setNextId(Object.keys(mapping || {}).length)
   }, [mapping])
 
   const addRow = () => {
-    setRows([...rows, { id: nextId, key: '', value: { field_id: 0, field_name: '' } }])
+    setRows([...rows, { id: nextId, key: '', value: { fieldId: 0, fieldName: '' } }])
     setNextId(nextId + 1)
   }
 
@@ -54,13 +54,13 @@ export function FieldMapping({
     const selectedField = kommoFields.find((f) => f.id === parseInt(kommoFieldId, 10))
     const newValue = selectedField
       ? {
-          field_id: selectedField.id,
-          field_name: selectedField.name,
-          field_type: selectedField.type,
-          field_code: selectedField.code,
-          entity_type: selectedField.entity_type, // 'leads' or 'contacts'
+          fieldId: selectedField.id,
+          fieldName: selectedField.name,
+          fieldType: selectedField.type,
+          fieldCode: selectedField.code,
+          entityType: selectedField.entityType, // 'leads' or 'contacts'
         }
-      : { field_id: 0, field_name: '' }
+      : { fieldId: 0, fieldName: '' }
     setRows(rows.map((row) => (row.id === id ? { ...row, value: newValue } : row)))
   }
 
@@ -71,7 +71,7 @@ export function FieldMapping({
   const handleSave = () => {
     // Convert rows to object, filtering out empty keys
     const newMapping = rows.reduce((acc, { key, value }) => {
-      if (key.trim() && value.field_id) acc[key.trim()] = value
+      if (key.trim() && value.fieldId) acc[key.trim()] = value
       return acc
     }, {})
     onChange(newMapping)
@@ -101,7 +101,7 @@ export function FieldMapping({
         // Get Kommo fields that are not already used (except current row's field)
         const usedKommoFields = rows
           .filter((r) => r.id !== id)
-          .map((r) => r.value?.field_id)
+          .map((r) => r.value?.fieldId)
           .filter(Boolean)
         const availableKommoOptions = kommoFieldOptions.filter(
           (opt) => !usedKommoFields.includes(parseInt(opt.value, 10))
@@ -120,7 +120,7 @@ export function FieldMapping({
             />
 
             <Select
-              value={value?.field_id?.toString() || ''}
+              value={value?.fieldId?.toString() || ''}
               onChange={(e) => updateValue(id, e.target.value)}
               placeholder="Seleccionar campo de Kommo"
               options={availableKommoOptions}
