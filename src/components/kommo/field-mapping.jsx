@@ -5,8 +5,9 @@ import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 
-export function FieldMapping({ mapping, onChange, isLoading }) {
+export function FieldMapping({ mapping, onChange, isLoading, availableFields = [] }) {
   // Use array of [key, value] pairs with unique IDs for local state
   const [rows, setRows] = useState(() =>
     Object.entries(mapping || {}).map(([key, value], i) => ({
@@ -69,35 +70,50 @@ export function FieldMapping({ mapping, onChange, isLoading }) {
         <span />
       </div>
 
-      {rows.map(({ id, key, value }) => (
-        <div
-          key={id}
-          className="flex flex-col gap-2 md:grid md:grid-cols-[1fr_1fr_40px] md:gap-4"
-        >
-          <Input
-            value={key}
-            onChange={(e) => updateKey(id, e.target.value)}
-            placeholder="email"
-          />
+      {rows.map(({ id, key, value }) => {
+        // Get fields that are not already used (except current row's field)
+        const usedFields = rows.filter((r) => r.id !== id).map((r) => r.key)
+        const fieldOptions = availableFields
+          .filter((field) => !usedFields.includes(field))
+          .map((field) => ({ value: field, label: field }))
 
-          <Input
-            value={value}
-            onChange={(e) => updateValue(id, e.target.value)}
-            placeholder="EMAIL"
-          />
-
-          <button
-            type="button"
-            onClick={() => removeRow(id)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500"
+        return (
+          <div
+            key={id}
+            className="flex flex-col gap-2 md:grid md:grid-cols-[1fr_1fr_40px] md:gap-4"
           >
-            <Trash2 className="h-4 w-4" />
-          </button>
-        </div>
-      ))}
+            <Select
+              value={key}
+              onChange={(e) => updateKey(id, e.target.value)}
+              placeholder="Seleccionar campo"
+              options={fieldOptions}
+            />
+
+            <Input
+              value={value}
+              onChange={(e) => updateValue(id, e.target.value)}
+              placeholder="Campo de Kommo (ej: EMAIL)"
+            />
+
+            <button
+              type="button"
+              onClick={() => removeRow(id)}
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        )
+      })}
 
       <div className="flex gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={addRow}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={addRow}
+          disabled={rows.length >= availableFields.length}
+        >
           <Plus className="h-4 w-4" />
           Agregar campo
         </Button>
@@ -109,6 +125,12 @@ export function FieldMapping({ mapping, onChange, isLoading }) {
           </Button>
         )}
       </div>
+
+      {availableFields.length === 0 && (
+        <p className="text-sm text-gray-500">
+          No hay campos disponibles. Los campos aparecerán después de recibir envíos en tus formularios.
+        </p>
+      )}
     </div>
   )
 }

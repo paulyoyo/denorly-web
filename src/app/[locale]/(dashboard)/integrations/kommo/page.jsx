@@ -1,6 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQuery } from '@tanstack/react-query'
 import { ExternalLink } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
@@ -14,6 +15,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { PageSpinner } from '@/components/ui/spinner'
+import { getForms } from '@/lib/api/forms'
+import { getSubmissions } from '@/lib/api/submissions'
 import {
   useConnectKommo,
   useDisconnectKommo,
@@ -34,6 +37,34 @@ export default function KommoPage() {
   const updateIntegration = useUpdateKommoIntegration()
   const disconnectKommo = useDisconnectKommo()
   const [showForm, setShowForm] = useState(false)
+
+  // Fetch all unique fields from form submissions
+  const { data: availableFields = [] } = useQuery({
+    queryKey: ['available-form-fields'],
+    queryFn: async () => {
+      const { data: forms } = await getForms()
+      const allFields = new Set()
+
+      // Fetch submissions for each form and extract field names
+      await Promise.all(
+        forms.map(async (form) => {
+          try {
+            const { data: submissions } = await getSubmissions(form.id, { limit: 50 })
+            submissions.forEach((sub) => {
+              if (sub.payload && typeof sub.payload === 'object') {
+                Object.keys(sub.payload).forEach((key) => allFields.add(key))
+              }
+            })
+          } catch {
+            // Ignore errors for individual forms
+          }
+        })
+      )
+
+      return Array.from(allFields).sort()
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  })
 
   const {
     register,
@@ -234,6 +265,7 @@ export default function KommoPage() {
                 updateIntegration.mutate({ fieldMappings })
               }
               isLoading={updateIntegration.isPending}
+              availableFields={availableFields}
             />
           </CardBody>
         </Card>
