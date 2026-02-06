@@ -284,6 +284,10 @@ export default function KommoPage() {
               }
               isLoading={updateIntegration.isPending}
               availableFields={availableFields}
+              kommoFields={[
+                ...(integration.leadFields || []),
+                ...(integration.contactFields || []),
+              ]}
             />
           </CardBody>
         </Card>

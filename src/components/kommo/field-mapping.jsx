@@ -4,16 +4,21 @@ import { Plus, Save, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 
-export function FieldMapping({ mapping, onChange, isLoading, availableFields = [] }) {
+export function FieldMapping({
+  mapping,
+  onChange,
+  isLoading,
+  availableFields = [],
+  kommoFields = [],
+}) {
   // Use array of [key, value] pairs with unique IDs for local state
   const [rows, setRows] = useState(() =>
     Object.entries(mapping || {}).map(([key, value], i) => ({
       id: i,
       key,
-      value,
+      value: typeof value === 'object' ? value : { field_id: 0, field_name: value },
     }))
   )
   const [nextId, setNextId] = useState(Object.keys(mapping || {}).length)
@@ -30,14 +35,14 @@ export function FieldMapping({ mapping, onChange, isLoading, availableFields = [
     const newRows = Object.entries(mapping || {}).map(([key, value], i) => ({
       id: i,
       key,
-      value,
+      value: typeof value === 'object' ? value : { field_id: 0, field_name: value },
     }))
     setRows(newRows)
     setNextId(Object.keys(mapping || {}).length)
   }, [mapping])
 
   const addRow = () => {
-    setRows([...rows, { id: nextId, key: '', value: '' }])
+    setRows([...rows, { id: nextId, key: '', value: { field_id: 0, field_name: '' } }])
     setNextId(nextId + 1)
   }
 
@@ -45,7 +50,16 @@ export function FieldMapping({ mapping, onChange, isLoading, availableFields = [
     setRows(rows.map((row) => (row.id === id ? { ...row, key: newKey } : row)))
   }
 
-  const updateValue = (id, newValue) => {
+  const updateValue = (id, kommoFieldId) => {
+    const selectedField = kommoFields.find((f) => f.id === parseInt(kommoFieldId, 10))
+    const newValue = selectedField
+      ? {
+          field_id: selectedField.id,
+          field_name: selectedField.name,
+          field_type: selectedField.type,
+          field_code: selectedField.code,
+        }
+      : { field_id: 0, field_name: '' }
     setRows(rows.map((row) => (row.id === id ? { ...row, value: newValue } : row)))
   }
 
@@ -56,11 +70,17 @@ export function FieldMapping({ mapping, onChange, isLoading, availableFields = [
   const handleSave = () => {
     // Convert rows to object, filtering out empty keys
     const newMapping = rows.reduce((acc, { key, value }) => {
-      if (key.trim()) acc[key.trim()] = value
+      if (key.trim() && value.field_id) acc[key.trim()] = value
       return acc
     }, {})
     onChange(newMapping)
   }
+
+  // Build Kommo field options for dropdown
+  const kommoFieldOptions = kommoFields.map((field) => ({
+    value: field.id.toString(),
+    label: `${field.name} (${field.code || field.type})`,
+  }))
 
   return (
     <div className="space-y-3">
@@ -77,6 +97,15 @@ export function FieldMapping({ mapping, onChange, isLoading, availableFields = [
           .filter((field) => !usedFields.includes(field))
           .map((field) => ({ value: field, label: field }))
 
+        // Get Kommo fields that are not already used (except current row's field)
+        const usedKommoFields = rows
+          .filter((r) => r.id !== id)
+          .map((r) => r.value?.field_id)
+          .filter(Boolean)
+        const availableKommoOptions = kommoFieldOptions.filter(
+          (opt) => !usedKommoFields.includes(parseInt(opt.value, 10))
+        )
+
         return (
           <div
             key={id}
@@ -89,10 +118,11 @@ export function FieldMapping({ mapping, onChange, isLoading, availableFields = [
               options={fieldOptions}
             />
 
-            <Input
-              value={value}
+            <Select
+              value={value?.field_id?.toString() || ''}
               onChange={(e) => updateValue(id, e.target.value)}
-              placeholder="Campo de Kommo (ej: EMAIL)"
+              placeholder="Seleccionar campo de Kommo"
+              options={availableKommoOptions}
             />
 
             <button
@@ -112,7 +142,7 @@ export function FieldMapping({ mapping, onChange, isLoading, availableFields = [
           variant="outline"
           size="sm"
           onClick={addRow}
-          disabled={rows.length >= availableFields.length}
+          disabled={rows.length >= availableFields.length || kommoFields.length === 0}
         >
           <Plus className="h-4 w-4" />
           Agregar campo
@@ -128,7 +158,13 @@ export function FieldMapping({ mapping, onChange, isLoading, availableFields = [
 
       {availableFields.length === 0 && (
         <p className="text-sm text-gray-500">
-          No hay campos disponibles. Los campos aparecerán después de recibir envíos en tus formularios.
+          No hay campos de formulario disponibles. Los campos aparecerán después de recibir envíos en tus formularios.
+        </p>
+      )}
+
+      {kommoFields.length === 0 && (
+        <p className="text-sm text-gray-500">
+          No hay campos de Kommo disponibles. Asegúrate de que la integración esté conectada.
         </p>
       )}
     </div>
