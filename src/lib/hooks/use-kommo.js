@@ -12,11 +12,19 @@ export function useKommoIntegration() {
   })
 }
 
-export function useKommoAuthUrl() {
-  return useQuery({
-    queryKey: ['kommo-auth-url'],
-    queryFn: kommoApi.getKommoAuthUrl,
-    enabled: false,
+export function useConnectKommo() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (credentials) => kommoApi.connectKommo(credentials),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['kommo-integration'] })
+      toast.success('Kommo conectado exitosamente')
+    },
+    onError: (error) => {
+      const message = error.response?.data?.error || 'Error al conectar con Kommo'
+      toast.error(message)
+    },
   })
 }
 
