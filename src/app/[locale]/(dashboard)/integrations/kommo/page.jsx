@@ -229,10 +229,11 @@ export default function KommoPage() {
           </CardHeader>
           <CardBody>
             <FieldMapping
-              mapping={integration.fieldMapping || {}}
-              onChange={(fieldMapping) =>
-                updateIntegration.mutate({ fieldMapping })
+              mapping={integration.fieldMappings || {}}
+              onChange={(fieldMappings) =>
+                updateIntegration.mutate({ fieldMappings })
               }
+              isLoading={updateIntegration.isPending}
             />
           </CardBody>
         </Card>
