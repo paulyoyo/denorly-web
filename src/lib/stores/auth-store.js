@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 
 export const useAuthStore = create()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       token: null,
       isLoading: true,
@@ -33,28 +33,17 @@ export const useAuthStore = create()(
           token: null,
           isAuthenticated: false,
         }),
-
-      hydrate: () => {
-        const { token } = get()
-        set({
-          isAuthenticated: !!token,
-          isLoading: false,
-        })
-      },
     }),
     {
       name: 'denorly-auth',
       partialize: (state) => ({
         user: state.user,
         token: state.token,
+        isAuthenticated: state.isAuthenticated,
       }),
-      onRehydrateStorage: () => (state, error) => {
-        if (!error && state) {
-          // Use setTimeout to ensure this runs after hydration is complete
-          setTimeout(() => {
-            useAuthStore.getState().hydrate()
-          }, 0)
-        }
+      onRehydrateStorage: () => () => {
+        // Set isLoading to false after hydration completes
+        useAuthStore.setState({ isLoading: false })
       },
     }
   )
