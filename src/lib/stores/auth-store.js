@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -7,7 +8,6 @@ export const useAuthStore = create()(
       user: null,
       token: null,
       isAuthenticated: false,
-      _hasHydrated: false,
 
       setUser: (user) =>
         set({
@@ -30,8 +30,6 @@ export const useAuthStore = create()(
           token: null,
           isAuthenticated: false,
         }),
-
-      setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),
     {
       name: 'denorly-auth',
@@ -40,15 +38,22 @@ export const useAuthStore = create()(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
-      onRehydrateStorage: () => () => {
-        useAuthStore.getState().setHasHydrated(true)
-      },
     }
   )
 )
 
-// Hook to check if store has hydrated
+// Hook to check if store has hydrated - uses persist API
 export const useHasHydrated = () => {
-  const hasHydrated = useAuthStore((state) => state._hasHydrated)
+  const [hasHydrated, setHasHydrated] = useState(
+    useAuthStore.persist.hasHydrated()
+  )
+
+  useEffect(() => {
+    const unsub = useAuthStore.persist.onFinishHydration(() => {
+      setHasHydrated(true)
+    })
+    return unsub
+  }, [])
+
   return hasHydrated
 }
