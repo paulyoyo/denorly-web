@@ -2,7 +2,7 @@ import { api } from './client'
 
 export async function getKommoIntegration() {
   try {
-    const { data } = await api.get('/integrations/kommo')
+    const { data } = await api.get('/kommo/integration')
     return data
   } catch {
     return null
@@ -10,15 +10,15 @@ export async function getKommoIntegration() {
 }
 
 export async function getKommoAuthUrl() {
-  const { data } = await api.get('/integrations/kommo/auth-url')
-  return data.url
+  const { data } = await api.get('/kommo/auth_url')
+  return data.authUrl
 }
 
 export async function updateKommoIntegration(updateData) {
-  const { data } = await api.patch('/integrations/kommo', updateData)
+  const { data } = await api.patch('/kommo/integration', updateData)
   return data
 }
 
 export async function disconnectKommo() {
-  await api.delete('/integrations/kommo')
+  await api.delete('/kommo/integration')
 }
